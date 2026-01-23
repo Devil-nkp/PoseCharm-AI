@@ -16,7 +16,8 @@
 
         [data-theme="feminine"] {
             --bg: linear-gradient(135deg, #fff0f5, #e6e6fa, #ffe4e1);
-            --glass: rgba(255, 255, 255, 0.7);
+            --glass: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.8);
             --primary: #ff69b4; /* Hot Pink */
             --text: #5d4037;
             --font-head: 'Playfair Display', serif;
@@ -26,7 +27,8 @@
 
         [data-theme="masculine"] {
             --bg: linear-gradient(135deg, #0f172a, #1e293b, #000);
-            --glass: rgba(30, 41, 59, 0.8);
+            --glass: rgba(30, 41, 59, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
             --primary: #0ea5e9; /* Cyan */
             --text: #f1f5f9;
             --font-head: 'Orbitron', sans-serif;
@@ -57,7 +59,7 @@
         .glass-card {
             background: var(--glass);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius);
             padding: 20px;
             margin-bottom: 20px;
@@ -69,6 +71,7 @@
         input {
             width: 100%; padding: 15px; border-radius: 50px; border: 2px solid var(--primary);
             font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.9); outline: none;
+            color: #333;
         }
 
         .btn-main {
@@ -88,12 +91,15 @@
         .option-card.selected { border-color: var(--primary); transform: translateY(-5px); background: rgba(255,255,255,0.4); }
 
         .masonry { column-count: 2; column-gap: 15px; }
-        .pose-item { break-inside: avoid; margin-bottom: 15px; position: relative; border-radius: 15px; overflow: hidden; }
-        .pose-item img { width: 100%; display: block; border-radius: 15px; min-height: 150px; background: #ddd; }
+        .pose-item { break-inside: avoid; margin-bottom: 15px; position: relative; border-radius: 15px; overflow: hidden; background: #eee; }
+        .pose-item img { width: 100%; display: block; border-radius: 15px; min-height: 150px; transition: transform 0.5s; }
+        .pose-item:hover img { transform: scale(1.05); }
+        
         .pose-overlay {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
             padding: 20px 10px 10px 10px; color: white;
+            font-size: 0.9rem;
         }
 
         /* Toggle Switch */
@@ -102,11 +108,12 @@
         }
         .toggle-btn {
             flex: 1; padding: 10px; text-align: center; border-radius: 25px; cursor: pointer; font-weight: 600;
+            transition: all 0.3s;
         }
-        .toggle-btn.active { background: var(--primary); color: white; }
+        .toggle-btn.active { background: var(--primary); color: white; shadow: 0 2px 10px rgba(0,0,0,0.2); }
 
         /* Loader */
-        .loader { text-align: center; padding: 40px; font-size: 1.5rem; color: var(--primary); }
+        .loader { text-align: center; padding: 40px; font-size: 1.2rem; color: var(--primary); }
         .fa-spin { animation: fa-spin 2s infinite linear; }
 
     </style>
@@ -115,23 +122,23 @@
 
     <div class="app-container">
         
-        <div id="screen-entry" class="screen active" style="text-align: center; padding-top: 30vh;">
-            <div style="font-size: 4rem; margin-bottom: 20px;">✨</div>
+        <div id="screen-entry" class="screen active" style="text-align: center; padding-top: 25vh;">
+            <div style="font-size: 4rem; margin-bottom: 20px; animation: breathe 3s infinite;">✨</div>
             <h1>PoseCharm AI</h1>
             <p>The Romantic Agent</p>
             
             <div class="glass-card" style="margin-top: 40px;">
-                <p>What is your name?</p>
-                <input type="text" id="username" placeholder="e.g. Priya" oninput="detectGender(this.value)">
-                <div id="gender-hint" style="margin-top:10px; font-size: 0.9rem; font-weight: bold; color: var(--primary); height: 20px;"></div>
+                <p>Who is capturing joy today?</p>
+                <input type="text" id="username" placeholder="Enter first name..." oninput="detectGender(this.value)">
+                <div id="gender-hint" style="margin-top:15px; font-size: 0.9rem; font-weight: bold; color: var(--primary); height: 20px; opacity: 0; transition: opacity 0.5s;"></div>
             </div>
             
             <button class="btn-main" onclick="nav('screen-home')">Begin Journey</button>
         </div>
 
         <div id="screen-home" class="screen">
-            <h2 id="welcome-text">Hello, Beauty.</h2>
-            <p style="opacity: 0.7; margin-bottom: 30px;">How does your heart feel today?</p>
+            <h2 id="welcome-text">Hello, Star.</h2>
+            <p style="opacity: 0.7; margin-bottom: 30px;">Let's find your perfect moment.</p>
 
             <h3>Select Vibe</h3>
             <div class="grid-options">
@@ -139,11 +146,11 @@
                     <div style="font-size: 2rem;">💞</div>
                     <div>Romantic</div>
                 </div>
-                <div class="option-card" onclick="alert('Select Romantic for the Agent Demo!')">
+                <div class="option-card" onclick="alert('Demo: Please select Romantic to test the AI Agent!')">
                     <div style="font-size: 2rem;">🔥</div>
                     <div>Bold</div>
                 </div>
-                <div class="option-card" onclick="alert('Select Romantic for the Agent Demo!')">
+                <div class="option-card" onclick="alert('Demo: Please select Romantic to test the AI Agent!')">
                     <div style="font-size: 2rem;">🥰</div>
                     <div>Cute</div>
                 </div>
@@ -152,8 +159,8 @@
             <div class="glass-card" style="display: flex; align-items: center; gap: 15px;">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); font-size: 1.5rem;"></i>
                 <div>
-                    <strong>AI Agent Active</strong>
-                    <div style="font-size: 0.8rem; opacity: 0.8;">Searching live web database...</div>
+                    <strong>AI Agent Online</strong>
+                    <div style="font-size: 0.8rem; opacity: 0.8;">Searching live global database...</div>
                 </div>
             </div>
 
@@ -161,12 +168,12 @@
         </div>
 
         <div id="screen-results" class="screen">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2>Your Poses</h2>
-                <div onclick="nav('screen-home')" style="cursor: pointer; opacity: 0.7;">✕ Close</div>
+                <div onclick="nav('screen-home')" style="cursor: pointer; padding: 10px; background:rgba(0,0,0,0.1); border-radius: 50%;">✕</div>
             </div>
             
-            <p id="agent-msg" style="font-style: italic; color: var(--primary); margin-bottom: 20px;">Connecting to soul...</p>
+            <p id="agent-msg" style="font-style: italic; color: var(--primary); margin-bottom: 20px; font-size: 0.95rem;">Connecting to soul...</p>
 
             <div class="toggle-container">
                 <div class="toggle-btn active" onclick="changeStyle('real', this)">Real Life 📷</div>
@@ -177,10 +184,10 @@
                 </div>
 
             <div id="loading-indicator" class="loader" style="display: none;">
-                <i class="fa-solid fa-circle-notch fa-spin"></i> Finding love...
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Curating love...
             </div>
             
-            <button id="more-btn" class="btn-main" style="display: none; background: #333;" onclick="fetchImages(true)">
+            <button id="more-btn" class="btn-main" style="display: none; background: #333; margin-bottom: 50px;" onclick="fetchImages(true)">
                 🔄 Load 20 More
             </button>
         </div>
@@ -188,7 +195,10 @@
     </div>
 
     <script>
-        // APP STATE
+        // --- CONFIGURATION ---
+        // CRITICAL FIX: Use relative path so it works on Render AND Localhost
+        const API_URL = "/api/generate";
+
         let STATE = {
             name: '',
             gender: 'feminine',
@@ -196,13 +206,13 @@
             style: 'real' // or 'animated'
         };
 
-        const API_URL = "http://127.0.0.1:5000/api/generate";
-
         // 1. GENDER DETECTION
         function detectGender(name) {
             if(name.length < 2) return;
             STATE.name = name;
-            const femEndings = ['a', 'i', 'y', 'e', 'na', 'la', 'sha', 'ra'];
+            
+            // Simple heuristic for demo purposes
+            const femEndings = ['a', 'i', 'y', 'e', 'na', 'la', 'sha', 'ra', 'ah'];
             const lastChar = name.trim().toLowerCase().slice(-1);
             const isFem = femEndings.includes(lastChar) || name.endsWith('ie');
             
@@ -210,40 +220,43 @@
             document.body.setAttribute('data-theme', STATE.gender);
             
             const hint = isFem ? "🌸 Feminine Mode Activated" : "⚡ Masculine Mode Activated";
-            document.getElementById('gender-hint').innerText = hint;
+            const hintEl = document.getElementById('gender-hint');
+            hintEl.innerText = hint;
+            hintEl.style.opacity = 1;
         }
 
         // 2. NAVIGATION
         function nav(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0,0);
             
             if(screenId === 'screen-home') {
-                document.getElementById('welcome-text').innerText = `Hello, ${STATE.name || 'Star'}.`;
+                const displayName = STATE.name || 'Star';
+                document.getElementById('welcome-text').innerText = `Hello, ${displayName}.`;
             }
         }
 
         function setTone(tone) {
             STATE.tone = tone;
-            // Visual selection logic would go here
+            // Visual feedback handled by CSS hover/selection state in full app
         }
 
         // 3. GENERATION LOGIC
         function startGeneration() {
             if(STATE.tone !== 'romantic') {
-                alert("Please select the Romantic category for this demo!");
+                alert("Please select the 'Romantic' category for this AI Agent demo!");
                 return;
             }
             nav('screen-results');
-            // Clear previous results only if we are starting fresh
-            document.getElementById('results-grid').innerHTML = ''; 
-            fetchImages();
+            document.getElementById('results-grid').innerHTML = ''; // Clear old
+            fetchImages(); // Fetch new
         }
 
         function changeStyle(newStyle, btn) {
             STATE.style = newStyle;
             
-            // UI Toggle
+            // UI Toggle Logic
             document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
@@ -252,30 +265,34 @@
             fetchImages();
         }
 
-        // 4. API CALL
+        // 4. API CALL (The Connector)
         async function fetchImages(isLoadMore = false) {
             const loader = document.getElementById('loading-indicator');
             const moreBtn = document.getElementById('more-btn');
+            const msgEl = document.getElementById('agent-msg');
             
             loader.style.display = 'block';
             moreBtn.style.display = 'none';
 
             try {
-                // Construct URL
+                // Construct URL with parameters
                 const url = `${API_URL}?gender=${STATE.gender}&tone=${STATE.tone}&style=${STATE.style}`;
                 
                 const response = await fetch(url);
+                
+                if (!response.ok) throw new Error("Network response was not ok");
+                
                 const result = await response.json();
 
                 if(result.status === 'success') {
                     // Update Agent Message
-                    document.getElementById('agent-msg').innerText = `"${result.message}"`;
+                    msgEl.innerText = `"${result.message}"`;
                     
                     // Render Images
                     const grid = document.getElementById('results-grid');
                     
                     if(result.data.length === 0) {
-                        alert("The Agent couldn't find matches right now. Try again.");
+                        msgEl.innerText = "The agent is resting. Try clicking 'Real Life' or 'Anime' again.";
                     }
 
                     result.data.forEach((imgUrl, index) => {
@@ -284,11 +301,10 @@
                         div.innerHTML = `
                             <img src="${imgUrl}" loading="lazy" onerror="this.parentElement.style.display='none'">
                             <div class="pose-overlay">
-                                <div>${STATE.style === 'real' ? 'Emotion' : 'Art'} #${index+1}</div>
+                                <div>${STATE.style === 'real' ? 'Pose' : 'Art'} #${index+1}</div>
                                 <div style="font-size: 0.8rem; opacity: 0.8;">Tap to expand</div>
                             </div>
                         `;
-                        // Basic Lightbox on click (Optional enhancement)
                         div.onclick = () => window.open(imgUrl, '_blank');
                         grid.appendChild(div);
                     });
@@ -297,7 +313,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                document.getElementById('agent-msg').innerHTML = `<span style="color:red">⚠️ Server Offline. Run 'python server.py'</span>`;
+                msgEl.innerHTML = `<span style="color:red; font-weight:bold;">⚠️ Connection Error. If on Render, check logs. If Local, run 'python app.py'.</span>`;
             } finally {
                 loader.style.display = 'none';
             }
