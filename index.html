@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PoseCharm AI | Legend Edition</title>
+    <title>PoseCharm AI | Pure Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -11,20 +11,16 @@
     <style>
         :root { --transition: 0.5s ease; }
         
-        /* Feminine Theme (Pink/Pastel) */
         [data-theme="feminine"] {
             --bg: linear-gradient(135deg, #fff0f5, #e6e6fa, #ffe4e1);
             --glass: rgba(255, 255, 255, 0.75);
             --primary: #ff69b4; --text: #5d4037; --font-head: 'Playfair Display', serif; --radius: 24px;
         }
-        
-        /* Masculine Theme (Dark/Cyan) */
         [data-theme="masculine"] {
             --bg: linear-gradient(135deg, #0f172a, #1e293b, #000);
             --glass: rgba(30, 41, 59, 0.85);
             --primary: #0ea5e9; --text: #f1f5f9; --font-head: 'Orbitron', sans-serif; --radius: 12px;
         }
-        
         body { margin: 0; background: var(--bg); background-size: 400% 400%; animation: breathe 15s infinite; font-family: 'Poppins', sans-serif; color: var(--text); min-height: 100vh; transition: var(--transition); }
         @keyframes breathe { 0% {background-position:0% 50%} 50% {background-position:100% 50%} 100% {background-position:0% 50%} }
         
@@ -55,7 +51,7 @@
         <div id="screen-entry" class="screen active" style="text-align: center; padding-top: 25vh;">
             <div style="font-size: 4rem; margin-bottom: 20px;">✨</div>
             <h1>PoseCharm AI</h1>
-            <p>Legend Edition</p>
+            <p>Pure Live Search</p>
             <div class="glass-card" style="margin-top: 40px;">
                 <p>Your Name?</p>
                 <input type="text" id="username" placeholder="Name..." oninput="detectGender(this.value)">
@@ -66,11 +62,11 @@
 
         <div id="screen-home" class="screen">
             <h2 id="welcome-text">Hello.</h2>
-            <p>10x Intelligence Activated.</p>
+            <p>Accurate. Live. Intelligent.</p>
             <div class="glass-card" onclick="startGeneration()" style="text-align: center; cursor: pointer; border: 2px solid var(--primary);">
                 <div style="font-size: 3rem; margin-bottom: 10px;">💞</div>
                 <h3>Romantic</h3>
-                <p style="font-size: 0.8rem;">Deep Search (10 Topics)</p>
+                <p style="font-size: 0.8rem;">Live Search (6 Topics)</p>
             </div>
             <button class="btn-main" onclick="startGeneration()">✨ Generate Gallery ✨</button>
         </div>
@@ -92,23 +88,21 @@
 
             <div id="loading-indicator" class="loader" style="display: none;">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i><br>
-                Scouting 10 distinct worlds...<br>
-                <span style="font-size: 0.8rem; opacity: 0.7;">(Gathering 30+ Images)</span>
+                Searching live database...<br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">(Curating top results)</span>
             </div>
             
             <button id="more-btn" class="btn-main" style="display: none; background: #333;" onclick="fetchImages(true)">
-                🔄 Scout 10 New Worlds
+                🔄 Search New Topics
             </button>
         </div>
     </div>
 
     <script>
-        // Use relative path for Render compatibility
         const API_URL = "/api/generate";
         
         let STATE = { name: '', gender: 'feminine', tone: 'romantic', style: 'real' };
 
-        // Gender Heuristic
         function detectGender(name) {
             STATE.name = name;
             const isFem = ['a','i','y','e'].includes(name.slice(-1)) || name.endsWith('ie');
@@ -145,26 +139,30 @@
             moreBtn.style.display = 'none';
 
             try {
-                // Call the Mega-Backend
                 const res = await fetch(`${API_URL}?gender=${STATE.gender}&tone=${STATE.tone}&style=${STATE.style}`);
                 const data = await res.json();
 
                 if(data.status === 'success') {
-                    document.getElementById('agent-msg').innerText = data.message;
                     const grid = document.getElementById('results-grid');
                     
-                    data.data.forEach((img, i) => {
-                        const div = document.createElement('div');
-                        div.className = 'pose-item';
-                        div.innerHTML = `<img src="${img}" loading="lazy"><div class="pose-overlay">Look #${i+1}</div>`;
-                        div.onclick = () => window.open(img, '_blank');
-                        grid.appendChild(div);
-                    });
-                    moreBtn.style.display = 'block';
+                    if(data.data.length === 0) {
+                        document.getElementById('agent-msg').innerText = "Agent couldn't reach the internet. Try again in 5s.";
+                        grid.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.6;">No live images found.</div>';
+                    } else {
+                        document.getElementById('agent-msg').innerText = data.message;
+                        data.data.forEach((img, i) => {
+                            const div = document.createElement('div');
+                            div.className = 'pose-item';
+                            div.innerHTML = `<img src="${img}" loading="lazy"><div class="pose-overlay">Look #${i+1}</div>`;
+                            div.onclick = () => window.open(img, '_blank');
+                            grid.appendChild(div);
+                        });
+                        moreBtn.style.display = 'block';
+                    }
                 }
             } catch (e) {
                 console.error(e);
-                document.getElementById('agent-msg').innerText = "Connection Error. Check Render logs.";
+                document.getElementById('agent-msg').innerText = "Connection Error. Check logs.";
             } finally {
                 loader.style.display = 'none';
             }
