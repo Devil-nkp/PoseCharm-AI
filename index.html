@@ -3,42 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PoseCharm AI | Pure Edition</title>
+    <title>PoseCharm AI | Speed Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
         :root { --transition: 0.5s ease; }
-        
-        [data-theme="feminine"] {
-            --bg: linear-gradient(135deg, #fff0f5, #e6e6fa, #ffe4e1);
-            --glass: rgba(255, 255, 255, 0.75);
-            --primary: #ff69b4; --text: #5d4037; --font-head: 'Playfair Display', serif; --radius: 24px;
-        }
-        [data-theme="masculine"] {
-            --bg: linear-gradient(135deg, #0f172a, #1e293b, #000);
-            --glass: rgba(30, 41, 59, 0.85);
-            --primary: #0ea5e9; --text: #f1f5f9; --font-head: 'Orbitron', sans-serif; --radius: 12px;
-        }
+        [data-theme="feminine"] { --bg: linear-gradient(135deg, #fff0f5, #e6e6fa, #ffe4e1); --glass: rgba(255, 255, 255, 0.75); --primary: #ff69b4; --text: #5d4037; --font-head: 'Playfair Display', serif; --radius: 24px; }
+        [data-theme="masculine"] { --bg: linear-gradient(135deg, #0f172a, #1e293b, #000); --glass: rgba(30, 41, 59, 0.85); --primary: #0ea5e9; --text: #f1f5f9; --font-head: 'Orbitron', sans-serif; --radius: 12px; }
         body { margin: 0; background: var(--bg); background-size: 400% 400%; animation: breathe 15s infinite; font-family: 'Poppins', sans-serif; color: var(--text); min-height: 100vh; transition: var(--transition); }
         @keyframes breathe { 0% {background-position:0% 50%} 50% {background-position:100% 50%} 100% {background-position:0% 50%} }
-        
         .app-container { max-width: 600px; margin: 0 auto; padding-bottom: 80px; }
         .screen { display: none; padding: 25px; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .screen.active { display: block; }
         @keyframes fadeUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
-
         .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
         h1, h2 { font-family: var(--font-head); margin: 0 0 10px 0; }
         input { width: 100%; padding: 15px; border-radius: 50px; border: 2px solid var(--primary); font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.9); outline: none; color: #333; }
         .btn-main { width: 100%; padding: 18px; border: none; border-radius: 50px; background: var(--primary); color: white; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
-        
         .masonry { column-count: 2; column-gap: 15px; }
         .pose-item { break-inside: avoid; margin-bottom: 15px; position: relative; border-radius: 15px; overflow: hidden; background: #eee; }
         .pose-item img { width: 100%; display: block; border-radius: 15px; min-height: 150px; }
         .pose-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 20px 10px 10px 10px; color: white; font-size: 0.8rem; }
-        
         .toggle-container { display: flex; background: var(--glass); padding: 5px; border-radius: 30px; margin-bottom: 20px; }
         .toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 25px; cursor: pointer; font-weight: 600; transition: 0.3s; }
         .toggle-btn.active { background: var(--primary); color: white; }
@@ -51,7 +38,7 @@
         <div id="screen-entry" class="screen active" style="text-align: center; padding-top: 25vh;">
             <div style="font-size: 4rem; margin-bottom: 20px;">✨</div>
             <h1>PoseCharm AI</h1>
-            <p>Pure Live Search</p>
+            <p>Master Search Edition</p>
             <div class="glass-card" style="margin-top: 40px;">
                 <p>Your Name?</p>
                 <input type="text" id="username" placeholder="Name..." oninput="detectGender(this.value)">
@@ -62,11 +49,11 @@
 
         <div id="screen-home" class="screen">
             <h2 id="welcome-text">Hello.</h2>
-            <p>Accurate. Live. Intelligent.</p>
+            <p>One Click. Best Poses.</p>
             <div class="glass-card" onclick="startGeneration()" style="text-align: center; cursor: pointer; border: 2px solid var(--primary);">
                 <div style="font-size: 3rem; margin-bottom: 10px;">💞</div>
                 <h3>Romantic</h3>
-                <p style="font-size: 0.8rem;">Live Search (6 Topics)</p>
+                <p style="font-size: 0.8rem;">Generate Top 20 Poses</p>
             </div>
             <button class="btn-main" onclick="startGeneration()">✨ Generate Gallery ✨</button>
         </div>
@@ -88,19 +75,18 @@
 
             <div id="loading-indicator" class="loader" style="display: none;">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i><br>
-                Searching live database...<br>
-                <span style="font-size: 0.8rem; opacity: 0.7;">(Curating top results)</span>
+                Fetching top 20 poses...<br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">(Live Web Search)</span>
             </div>
             
             <button id="more-btn" class="btn-main" style="display: none; background: #333;" onclick="fetchImages(true)">
-                🔄 Search New Topics
+                🔄 Refresh Gallery
             </button>
         </div>
     </div>
 
     <script>
         const API_URL = "/api/generate";
-        
         let STATE = { name: '', gender: 'feminine', tone: 'romantic', style: 'real' };
 
         function detectGender(name) {
@@ -139,21 +125,19 @@
             moreBtn.style.display = 'none';
 
             try {
-                const res = await fetch(`${API_URL}?gender=${STATE.gender}&tone=${STATE.tone}&style=${STATE.style}`);
+                const res = await fetch(`${API_URL}?style=${STATE.style}`);
                 const data = await res.json();
 
                 if(data.status === 'success') {
                     const grid = document.getElementById('results-grid');
-                    
                     if(data.data.length === 0) {
-                        document.getElementById('agent-msg').innerText = "Agent couldn't reach the internet. Try again in 5s.";
-                        grid.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.6;">No live images found.</div>';
+                        document.getElementById('agent-msg').innerText = "No images found. Try refreshing.";
                     } else {
                         document.getElementById('agent-msg').innerText = data.message;
                         data.data.forEach((img, i) => {
                             const div = document.createElement('div');
                             div.className = 'pose-item';
-                            div.innerHTML = `<img src="${img}" loading="lazy"><div class="pose-overlay">Look #${i+1}</div>`;
+                            div.innerHTML = `<img src="${img}" loading="lazy"><div class="pose-overlay">Pose #${i+1}</div>`;
                             div.onclick = () => window.open(img, '_blank');
                             grid.appendChild(div);
                         });
@@ -162,7 +146,7 @@
                 }
             } catch (e) {
                 console.error(e);
-                document.getElementById('agent-msg').innerText = "Connection Error. Check logs.";
+                document.getElementById('agent-msg').innerText = "Connection Error.";
             } finally {
                 loader.style.display = 'none';
             }
