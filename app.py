@@ -19,7 +19,7 @@ def home():
 
 class RomanticSoulAI:
     def __init__(self):
-        # 70+ Poses List (Condensed for brevity, assumed full list is here)
+        # 70+ Poses List
         self.all_poses = [
             "Forehead Touch couple", "Forehead Kiss couple", "Hand Kiss couple", 
             "Hand-in-Hand Walk couple", "Back Hug couple", "Hug from Behind couple", 
@@ -60,62 +60,59 @@ class RomanticSoulAI:
             "Vinyl Record Dance couple", "Bookstore Close Reading Pose couple"
         ]
         
-        # EMERGENCY BACKUP (Unsplash IDs) - GUARANTEED to work if DDG fails
-        self.emergency_images = [
-            "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=500",
-            "https://images.unsplash.com/photo-1516585427167-9f4af9627e6c?w=500",
-            "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?w=500",
-            "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500",
-            "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=500",
-            "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500",
-            "https://images.unsplash.com/photo-1494774157365-9e04c6720e47?w=500",
-            "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500",
-            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500",
-            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500"
-        ]
-
         self.modifiers = {
             'real': "modest fully clothed aesthetic 4k portrait photography beautiful lighting joy",
             'animated': "anime style illustration digital art magical wallpaper 4k"
         }
 
-    def get_legendary_grid(self, style):
-        # 1. Pick 5 distinct topics (Reduced from 10 to ensure speed/success)
-        selected_topics = random.sample(self.all_poses, 5)
-        logger.info(f"🚀 Searching for: {selected_topics}")
+    def get_live_grid(self, style):
+        # 1. Select 6 Distinct Topics (Optimum for speed vs variety)
+        selected_topics = random.sample(self.all_poses, 6)
+        logger.info(f"🚀 Searching Live for: {selected_topics}")
 
         all_images = []
         
-        # 2. Sequential Search (One by One) - Much safer against bot blocks
+        # 2. Sequential Smart Search
+        # We loop one-by-one to avoid Bot Detection (429 Errors)
         for topic in selected_topics:
             full_query = f"{topic} {self.modifiers[style]}"
+            
             try:
-                # Force 'html' backend - It is slower but rarely blocked
                 with DDGS() as ddgs:
+                    # Pause briefly to act human
+                    time.sleep(random.uniform(0.3, 0.7))
+                    
+                    # Search
                     results = ddgs.images(
                         full_query, 
                         region="wt-wt", 
                         safesearch="on", 
-                        max_results=5,
-                        backend="html" 
+                        max_results=8
                     )
-                    # Get the top 2-3 images
-                    found = [r['image'] for r in results if r.get('image')][:4]
-                    all_images.extend(found)
-                    time.sleep(0.5) # Gentle pause
+                    
+                    found = [r['image'] for r in results if r.get('image')]
+                    
+                    # SMART RETRY: If complex query failed, try simple query
+                    if not found:
+                        logger.info(f"Retrying simple query for {topic}...")
+                        simple_query = f"{topic} romantic couple aesthetic"
+                        results = ddgs.images(simple_query, region="wt-wt", safesearch="on", max_results=5)
+                        found = [r['image'] for r in results if r.get('image')]
+                    
+                    # Add top 4 images from this topic
+                    all_images.extend(found[:4])
+
             except Exception as e:
-                logger.error(f"Failed '{topic}': {e}")
+                logger.error(f"Skipping '{topic}': {e}")
                 continue
 
-        # 3. EMERGENCY FALLBACK
-        # If we have 0 images (total IP ban), use the hardcoded safety list
-        if len(all_images) < 5:
-            logger.critical("⚠️ TOTAL SEARCH FAILURE. DEPLOYING EMERGENCY IMAGES.")
-            # Shuffle emergency images to simulate variety
-            random.shuffle(self.emergency_images)
-            all_images.extend(self.emergency_images)
-
+        # 3. Final Shuffle
         random.shuffle(all_images)
+        
+        # If we found nothing at all (rare IP ban), return empty list (No fake images)
+        if not all_images:
+            logger.warning("⚠️ No images found. Returning empty state.")
+            
         return all_images[:30]
 
 agent = RomanticSoulAI()
@@ -130,7 +127,8 @@ def generate():
     else:
         msg = "I've gathered these dreamy illustrations from magical storybooks."
 
-    image_list = agent.get_legendary_grid(style)
+    # Live Search Only
+    image_list = agent.get_live_grid(style)
     
     return jsonify({
         "status": "success",
@@ -141,3 +139,4 @@ def generate():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
