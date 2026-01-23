@@ -4,9 +4,17 @@ import time
 import logging
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
-from duckduckgo_search import DDGS, DuckDuckGoSearchException
 
-# Set up logging to see what's happening on Render
+# --- ROBUST IMPORT FIX ---
+# This block fixes the "ImportError" by checking which version is installed
+try:
+    from duckduckgo_search import DDGS, DuckDuckGoSearchException
+except ImportError:
+    # If the specific exception doesn't exist, fall back to generic Exception
+    from duckduckgo_search import DDGS
+    DuckDuckGoSearchException = Exception
+
+# Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -18,7 +26,7 @@ CORS(app)
 def home():
     return send_from_directory('.', 'index.html')
 
-# --- THE ROBUST ROMANTIC AI ---
+# --- THE ROMANTIC AI BRAIN ---
 class RomanticSoulAI:
     def __init__(self):
         self.scenarios = {
@@ -46,7 +54,6 @@ class RomanticSoulAI:
                 "watercolor illustration romantic couple"
             ]
         }
-        # Simplified safety prompt for better results
         self.safety_prompt = "modest outfits fully clothed family friendly aesthetic 4k portrait photography beautiful lighting joy"
 
     def generate_query(self, category, style):
@@ -65,19 +72,16 @@ class RomanticSoulAI:
         logger.info(f"❤️ Starting search for: {query}")
         
         max_retries = 3
-        # Try up to 3 times
         for attempt in range(max_retries):
             try:
-                # Use a context manager for proper resource handling
+                # Use context manager
                 with DDGS() as ddgs:
-                    # Add a random short delay to act human
                     time.sleep(random.uniform(0.5, 1.5))
                     
-                    # Try default 'api' backend first, switch to 'html' on retries
+                    # Backend switching logic
                     backend = 'api' if attempt == 0 else 'html'
                     logger.info(f"Attempt {attempt+1}/{max_retries} using backend: {backend}")
                     
-                    # Fetch more than needed to create a buffer
                     results = ddgs.images(
                         query, 
                         region="wt-wt", 
@@ -86,12 +90,10 @@ class RomanticSoulAI:
                         backend=backend
                     )
                     
-                    # Filter out any empty results
                     image_urls = [r['image'] for r in results if r.get('image')]
                     
                     if image_urls:
                         logger.info(f"✅ Success! Found {len(image_urls)} images.")
-                        # Shuffle for variety and return requested amount
                         random.shuffle(image_urls)
                         return image_urls[:count]
                     else:
@@ -102,8 +104,7 @@ class RomanticSoulAI:
             except Exception as e:
                 logger.error(f"Unexpected error on attempt {attempt+1}: {e}")
             
-            # If failed, wait before retrying (exponential backoff)
-            sleep_time = (attempt + 1) * 2 # Waits 2s, then 4s
+            sleep_time = (attempt + 1) * 2
             logger.info(f"Sleeping for {sleep_time}s before retry...")
             time.sleep(sleep_time)
             
@@ -124,7 +125,6 @@ def generate():
     else:
         msg = "I found these dreamy illustrations from a world where love is magic."
 
-    # The agent will now retry internally if it fails
     image_list = agent.get_images(gender_mode, style, count=20)
     
     return jsonify({
@@ -136,4 +136,3 @@ def generate():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
- 
