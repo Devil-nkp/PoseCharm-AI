@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PoseCharm AI | The Romantic Agent</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* --- 1. DYNAMIC THEME ENGINE --- */
+        :root {
+            --transition: 0.5s ease;
+        }
+
+        [data-theme="feminine"] {
+            --bg: linear-gradient(135deg, #fff0f5, #e6e6fa, #ffe4e1);
+            --glass: rgba(255, 255, 255, 0.7);
+            --primary: #ff69b4; /* Hot Pink */
+            --text: #5d4037;
+            --font-head: 'Playfair Display', serif;
+            --font-body: 'Poppins', sans-serif;
+            --radius: 24px;
+        }
+
+        [data-theme="masculine"] {
+            --bg: linear-gradient(135deg, #0f172a, #1e293b, #000);
+            --glass: rgba(30, 41, 59, 0.8);
+            --primary: #0ea5e9; /* Cyan */
+            --text: #f1f5f9;
+            --font-head: 'Orbitron', sans-serif;
+            --font-body: 'Poppins', sans-serif;
+            --radius: 12px;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            background-size: 400% 400%;
+            animation: breathe 15s infinite;
+            font-family: var(--font-body);
+            color: var(--text);
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        @keyframes breathe { 0% {background-position:0% 50%} 50% {background-position:100% 50%} 100% {background-position:0% 50%} }
+
+        /* --- 2. COMPONENTS --- */
+        .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 80px; }
+        
+        .screen { display: none; padding: 25px; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .screen.active { display: block; }
+        @keyframes fadeUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { font-family: var(--font-head); margin: 0 0 10px 0; }
+        
+        input {
+            width: 100%; padding: 15px; border-radius: 50px; border: 2px solid var(--primary);
+            font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.9); outline: none;
+        }
+
+        .btn-main {
+            width: 100%; padding: 18px; border: none; border-radius: 50px;
+            background: var(--primary); color: white; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.2); transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        .btn-main:active { transform: scale(0.96); }
+
+        /* Grid & Masonry */
+        .grid-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .option-card {
+            background: var(--glass); padding: 15px; border-radius: var(--radius);
+            text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.3s;
+        }
+        .option-card.selected { border-color: var(--primary); transform: translateY(-5px); background: rgba(255,255,255,0.4); }
+
+        .masonry { column-count: 2; column-gap: 15px; }
+        .pose-item { break-inside: avoid; margin-bottom: 15px; position: relative; border-radius: 15px; overflow: hidden; }
+        .pose-item img { width: 100%; display: block; border-radius: 15px; min-height: 150px; background: #ddd; }
+        .pose-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 20px 10px 10px 10px; color: white;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex; background: var(--glass); padding: 5px; border-radius: 30px; margin-bottom: 20px;
+        }
+        .toggle-btn {
+            flex: 1; padding: 10px; text-align: center; border-radius: 25px; cursor: pointer; font-weight: 600;
+        }
+        .toggle-btn.active { background: var(--primary); color: white; }
+
+        /* Loader */
+        .loader { text-align: center; padding: 40px; font-size: 1.5rem; color: var(--primary); }
+        .fa-spin { animation: fa-spin 2s infinite linear; }
+
+    </style>
+</head>
+<body data-theme="feminine">
+
+    <div class="app-container">
+        
+        <div id="screen-entry" class="screen active" style="text-align: center; padding-top: 30vh;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">✨</div>
+            <h1>PoseCharm AI</h1>
+            <p>The Romantic Agent</p>
+            
+            <div class="glass-card" style="margin-top: 40px;">
+                <p>What is your name?</p>
+                <input type="text" id="username" placeholder="e.g. Priya" oninput="detectGender(this.value)">
+                <div id="gender-hint" style="margin-top:10px; font-size: 0.9rem; font-weight: bold; color: var(--primary); height: 20px;"></div>
+            </div>
+            
+            <button class="btn-main" onclick="nav('screen-home')">Begin Journey</button>
+        </div>
+
+        <div id="screen-home" class="screen">
+            <h2 id="welcome-text">Hello, Beauty.</h2>
+            <p style="opacity: 0.7; margin-bottom: 30px;">How does your heart feel today?</p>
+
+            <h3>Select Vibe</h3>
+            <div class="grid-options">
+                <div class="option-card selected" onclick="setTone('romantic')">
+                    <div style="font-size: 2rem;">💞</div>
+                    <div>Romantic</div>
+                </div>
+                <div class="option-card" onclick="alert('Select Romantic for the Agent Demo!')">
+                    <div style="font-size: 2rem;">🔥</div>
+                    <div>Bold</div>
+                </div>
+                <div class="option-card" onclick="alert('Select Romantic for the Agent Demo!')">
+                    <div style="font-size: 2rem;">🥰</div>
+                    <div>Cute</div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="display: flex; align-items: center; gap: 15px;">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); font-size: 1.5rem;"></i>
+                <div>
+                    <strong>AI Agent Active</strong>
+                    <div style="font-size: 0.8rem; opacity: 0.8;">Searching live web database...</div>
+                </div>
+            </div>
+
+            <button class="btn-main" onclick="startGeneration()">✨ Create Magic ✨</button>
+        </div>
+
+        <div id="screen-results" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Your Poses</h2>
+                <div onclick="nav('screen-home')" style="cursor: pointer; opacity: 0.7;">✕ Close</div>
+            </div>
+            
+            <p id="agent-msg" style="font-style: italic; color: var(--primary); margin-bottom: 20px;">Connecting to soul...</p>
+
+            <div class="toggle-container">
+                <div class="toggle-btn active" onclick="changeStyle('real', this)">Real Life 📷</div>
+                <div class="toggle-btn" onclick="changeStyle('animated', this)">Anime Dream 🎨</div>
+            </div>
+
+            <div id="results-grid" class="masonry">
+                </div>
+
+            <div id="loading-indicator" class="loader" style="display: none;">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Finding love...
+            </div>
+            
+            <button id="more-btn" class="btn-main" style="display: none; background: #333;" onclick="fetchImages(true)">
+                🔄 Load 20 More
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // APP STATE
+        let STATE = {
+            name: '',
+            gender: 'feminine',
+            tone: 'romantic',
+            style: 'real' // or 'animated'
+        };
+
+        const API_URL = "http://127.0.0.1:5000/api/generate";
+
+        // 1. GENDER DETECTION
+        function detectGender(name) {
+            if(name.length < 2) return;
+            STATE.name = name;
+            const femEndings = ['a', 'i', 'y', 'e', 'na', 'la', 'sha', 'ra'];
+            const lastChar = name.trim().toLowerCase().slice(-1);
+            const isFem = femEndings.includes(lastChar) || name.endsWith('ie');
+            
+            STATE.gender = isFem ? 'feminine' : 'masculine';
+            document.body.setAttribute('data-theme', STATE.gender);
+            
+            const hint = isFem ? "🌸 Feminine Mode Activated" : "⚡ Masculine Mode Activated";
+            document.getElementById('gender-hint').innerText = hint;
+        }
+
+        // 2. NAVIGATION
+        function nav(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            if(screenId === 'screen-home') {
+                document.getElementById('welcome-text').innerText = `Hello, ${STATE.name || 'Star'}.`;
+            }
+        }
+
+        function setTone(tone) {
+            STATE.tone = tone;
+            // Visual selection logic would go here
+        }
+
+        // 3. GENERATION LOGIC
+        function startGeneration() {
+            if(STATE.tone !== 'romantic') {
+                alert("Please select the Romantic category for this demo!");
+                return;
+            }
+            nav('screen-results');
+            // Clear previous results only if we are starting fresh
+            document.getElementById('results-grid').innerHTML = ''; 
+            fetchImages();
+        }
+
+        function changeStyle(newStyle, btn) {
+            STATE.style = newStyle;
+            
+            // UI Toggle
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Reset and Fetch
+            document.getElementById('results-grid').innerHTML = '';
+            fetchImages();
+        }
+
+        // 4. API CALL
+        async function fetchImages(isLoadMore = false) {
+            const loader = document.getElementById('loading-indicator');
+            const moreBtn = document.getElementById('more-btn');
+            
+            loader.style.display = 'block';
+            moreBtn.style.display = 'none';
+
+            try {
+                // Construct URL
+                const url = `${API_URL}?gender=${STATE.gender}&tone=${STATE.tone}&style=${STATE.style}`;
+                
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if(result.status === 'success') {
+                    // Update Agent Message
+                    document.getElementById('agent-msg').innerText = `"${result.message}"`;
+                    
+                    // Render Images
+                    const grid = document.getElementById('results-grid');
+                    
+                    if(result.data.length === 0) {
+                        alert("The Agent couldn't find matches right now. Try again.");
+                    }
+
+                    result.data.forEach((imgUrl, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'pose-item';
+                        div.innerHTML = `
+                            <img src="${imgUrl}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                            <div class="pose-overlay">
+                                <div>${STATE.style === 'real' ? 'Emotion' : 'Art'} #${index+1}</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Tap to expand</div>
+                            </div>
+                        `;
+                        // Basic Lightbox on click (Optional enhancement)
+                        div.onclick = () => window.open(imgUrl, '_blank');
+                        grid.appendChild(div);
+                    });
+
+                    moreBtn.style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('agent-msg').innerHTML = `<span style="color:red">⚠️ Server Offline. Run 'python server.py'</span>`;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
