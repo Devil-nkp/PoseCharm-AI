@@ -3,317 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PoseCharm AI | The Romantic Agent</title>
+    <title>PoseCharm AI | Legend Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        /* --- 1. DYNAMIC THEME ENGINE --- */
-        :root {
-            --transition: 0.5s ease;
-        }
-
+        :root { --transition: 0.5s ease; }
+        
+        /* Feminine Theme (Pink/Pastel) */
         [data-theme="feminine"] {
             --bg: linear-gradient(135deg, #fff0f5, #e6e6fa, #ffe4e1);
             --glass: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --primary: #ff69b4; /* Hot Pink */
-            --text: #5d4037;
-            --font-head: 'Playfair Display', serif;
-            --font-body: 'Poppins', sans-serif;
-            --radius: 24px;
+            --primary: #ff69b4; --text: #5d4037; --font-head: 'Playfair Display', serif; --radius: 24px;
         }
-
+        
+        /* Masculine Theme (Dark/Cyan) */
         [data-theme="masculine"] {
             --bg: linear-gradient(135deg, #0f172a, #1e293b, #000);
             --glass: rgba(30, 41, 59, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --primary: #0ea5e9; /* Cyan */
-            --text: #f1f5f9;
-            --font-head: 'Orbitron', sans-serif;
-            --font-body: 'Poppins', sans-serif;
-            --radius: 12px;
+            --primary: #0ea5e9; --text: #f1f5f9; --font-head: 'Orbitron', sans-serif; --radius: 12px;
         }
-
-        body {
-            margin: 0;
-            background: var(--bg);
-            background-size: 400% 400%;
-            animation: breathe 15s infinite;
-            font-family: var(--font-body);
-            color: var(--text);
-            min-height: 100vh;
-            transition: var(--transition);
-        }
-
-        @keyframes breathe { 0% {background-position:0% 50%} 50% {background-position:100% 50%} 100% {background-position:0% 50%} }
-
-        /* --- 2. COMPONENTS --- */
-        .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 80px; }
         
+        body { margin: 0; background: var(--bg); background-size: 400% 400%; animation: breathe 15s infinite; font-family: 'Poppins', sans-serif; color: var(--text); min-height: 100vh; transition: var(--transition); }
+        @keyframes breathe { 0% {background-position:0% 50%} 50% {background-position:100% 50%} 100% {background-position:0% 50%} }
+        
+        .app-container { max-width: 600px; margin: 0 auto; padding-bottom: 80px; }
         .screen { display: none; padding: 25px; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .screen.active { display: block; }
         @keyframes fadeUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
 
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-
+        .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
         h1, h2 { font-family: var(--font-head); margin: 0 0 10px 0; }
+        input { width: 100%; padding: 15px; border-radius: 50px; border: 2px solid var(--primary); font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.9); outline: none; color: #333; }
+        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 50px; background: var(--primary); color: white; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
         
-        input {
-            width: 100%; padding: 15px; border-radius: 50px; border: 2px solid var(--primary);
-            font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.9); outline: none;
-            color: #333;
-        }
-
-        .btn-main {
-            width: 100%; padding: 18px; border: none; border-radius: 50px;
-            background: var(--primary); color: white; font-size: 1.2rem; font-weight: bold;
-            cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.2); transition: transform 0.2s;
-            margin-top: 20px;
-        }
-        .btn-main:active { transform: scale(0.96); }
-
-        /* Grid & Masonry */
-        .grid-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .option-card {
-            background: var(--glass); padding: 15px; border-radius: var(--radius);
-            text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.3s;
-        }
-        .option-card.selected { border-color: var(--primary); transform: translateY(-5px); background: rgba(255,255,255,0.4); }
-
         .masonry { column-count: 2; column-gap: 15px; }
         .pose-item { break-inside: avoid; margin-bottom: 15px; position: relative; border-radius: 15px; overflow: hidden; background: #eee; }
-        .pose-item img { width: 100%; display: block; border-radius: 15px; min-height: 150px; transition: transform 0.5s; }
-        .pose-item:hover img { transform: scale(1.05); }
+        .pose-item img { width: 100%; display: block; border-radius: 15px; min-height: 150px; }
+        .pose-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 20px 10px 10px 10px; color: white; font-size: 0.8rem; }
         
-        .pose-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            padding: 20px 10px 10px 10px; color: white;
-            font-size: 0.9rem;
-        }
-
-        /* Toggle Switch */
-        .toggle-container {
-            display: flex; background: var(--glass); padding: 5px; border-radius: 30px; margin-bottom: 20px;
-        }
-        .toggle-btn {
-            flex: 1; padding: 10px; text-align: center; border-radius: 25px; cursor: pointer; font-weight: 600;
-            transition: all 0.3s;
-        }
-        .toggle-btn.active { background: var(--primary); color: white; shadow: 0 2px 10px rgba(0,0,0,0.2); }
-
-        /* Loader */
-        .loader { text-align: center; padding: 40px; font-size: 1.2rem; color: var(--primary); }
-        .fa-spin { animation: fa-spin 2s infinite linear; }
-
+        .toggle-container { display: flex; background: var(--glass); padding: 5px; border-radius: 30px; margin-bottom: 20px; }
+        .toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 25px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .toggle-btn.active { background: var(--primary); color: white; }
+        .loader { text-align: center; padding: 40px; color: var(--primary); font-weight: 600; }
     </style>
 </head>
 <body data-theme="feminine">
 
     <div class="app-container">
-        
         <div id="screen-entry" class="screen active" style="text-align: center; padding-top: 25vh;">
-            <div style="font-size: 4rem; margin-bottom: 20px; animation: breathe 3s infinite;">✨</div>
+            <div style="font-size: 4rem; margin-bottom: 20px;">✨</div>
             <h1>PoseCharm AI</h1>
-            <p>The Romantic Agent</p>
-            
+            <p>Legend Edition</p>
             <div class="glass-card" style="margin-top: 40px;">
-                <p>Who is capturing joy today?</p>
-                <input type="text" id="username" placeholder="Enter first name..." oninput="detectGender(this.value)">
-                <div id="gender-hint" style="margin-top:15px; font-size: 0.9rem; font-weight: bold; color: var(--primary); height: 20px; opacity: 0; transition: opacity 0.5s;"></div>
+                <p>Your Name?</p>
+                <input type="text" id="username" placeholder="Name..." oninput="detectGender(this.value)">
+                <div id="gender-hint" style="height: 20px; color: var(--primary); font-weight: bold; margin-top: 10px;"></div>
             </div>
-            
-            <button class="btn-main" onclick="nav('screen-home')">Begin Journey</button>
+            <button class="btn-main" onclick="nav('screen-home')">Enter</button>
         </div>
 
         <div id="screen-home" class="screen">
-            <h2 id="welcome-text">Hello, Star.</h2>
-            <p style="opacity: 0.7; margin-bottom: 30px;">Let's find your perfect moment.</p>
-
-            <h3>Select Vibe</h3>
-            <div class="grid-options">
-                <div class="option-card selected" onclick="setTone('romantic')">
-                    <div style="font-size: 2rem;">💞</div>
-                    <div>Romantic</div>
-                </div>
-                <div class="option-card" onclick="alert('Demo: Please select Romantic to test the AI Agent!')">
-                    <div style="font-size: 2rem;">🔥</div>
-                    <div>Bold</div>
-                </div>
-                <div class="option-card" onclick="alert('Demo: Please select Romantic to test the AI Agent!')">
-                    <div style="font-size: 2rem;">🥰</div>
-                    <div>Cute</div>
-                </div>
+            <h2 id="welcome-text">Hello.</h2>
+            <p>10x Intelligence Activated.</p>
+            <div class="glass-card" onclick="startGeneration()" style="text-align: center; cursor: pointer; border: 2px solid var(--primary);">
+                <div style="font-size: 3rem; margin-bottom: 10px;">💞</div>
+                <h3>Romantic</h3>
+                <p style="font-size: 0.8rem;">Deep Search (10 Topics)</p>
             </div>
-
-            <div class="glass-card" style="display: flex; align-items: center; gap: 15px;">
-                <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); font-size: 1.5rem;"></i>
-                <div>
-                    <strong>AI Agent Online</strong>
-                    <div style="font-size: 0.8rem; opacity: 0.8;">Searching live global database...</div>
-                </div>
-            </div>
-
-            <button class="btn-main" onclick="startGeneration()">✨ Create Magic ✨</button>
+            <button class="btn-main" onclick="startGeneration()">✨ Generate Gallery ✨</button>
         </div>
 
         <div id="screen-results" class="screen">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2>Your Poses</h2>
-                <div onclick="nav('screen-home')" style="cursor: pointer; padding: 10px; background:rgba(0,0,0,0.1); border-radius: 50%;">✕</div>
+                <h2>Gallery</h2>
+                <div onclick="nav('screen-home')" style="cursor: pointer; padding: 10px;">✕</div>
             </div>
             
-            <p id="agent-msg" style="font-style: italic; color: var(--primary); margin-bottom: 20px; font-size: 0.95rem;">Connecting to soul...</p>
+            <p id="agent-msg" style="color: var(--primary); font-style: italic; margin-bottom: 15px;">Connecting...</p>
 
             <div class="toggle-container">
                 <div class="toggle-btn active" onclick="changeStyle('real', this)">Real Life 📷</div>
                 <div class="toggle-btn" onclick="changeStyle('animated', this)">Anime Dream 🎨</div>
             </div>
 
-            <div id="results-grid" class="masonry">
-                </div>
+            <div id="results-grid" class="masonry"></div>
 
             <div id="loading-indicator" class="loader" style="display: none;">
-                <i class="fa-solid fa-circle-notch fa-spin"></i> Curating love...
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i><br>
+                Scouting 10 distinct worlds...<br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">(Gathering 30+ Images)</span>
             </div>
             
-            <button id="more-btn" class="btn-main" style="display: none; background: #333; margin-bottom: 50px;" onclick="fetchImages(true)">
-                🔄 Load 20 More
+            <button id="more-btn" class="btn-main" style="display: none; background: #333;" onclick="fetchImages(true)">
+                🔄 Scout 10 New Worlds
             </button>
         </div>
-
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        // CRITICAL FIX: Use relative path so it works on Render AND Localhost
+        // Use relative path for Render compatibility
         const API_URL = "/api/generate";
+        
+        let STATE = { name: '', gender: 'feminine', tone: 'romantic', style: 'real' };
 
-        let STATE = {
-            name: '',
-            gender: 'feminine',
-            tone: 'romantic',
-            style: 'real' // or 'animated'
-        };
-
-        // 1. GENDER DETECTION
+        // Gender Heuristic
         function detectGender(name) {
-            if(name.length < 2) return;
             STATE.name = name;
-            
-            // Simple heuristic for demo purposes
-            const femEndings = ['a', 'i', 'y', 'e', 'na', 'la', 'sha', 'ra', 'ah'];
-            const lastChar = name.trim().toLowerCase().slice(-1);
-            const isFem = femEndings.includes(lastChar) || name.endsWith('ie');
-            
+            const isFem = ['a','i','y','e'].includes(name.slice(-1)) || name.endsWith('ie');
             STATE.gender = isFem ? 'feminine' : 'masculine';
             document.body.setAttribute('data-theme', STATE.gender);
-            
-            const hint = isFem ? "🌸 Feminine Mode Activated" : "⚡ Masculine Mode Activated";
-            const hintEl = document.getElementById('gender-hint');
-            hintEl.innerText = hint;
-            hintEl.style.opacity = 1;
+            document.getElementById('gender-hint').innerText = isFem ? "🌸 Feminine Mode" : "⚡ Masculine Mode";
         }
 
-        // 2. NAVIGATION
-        function nav(screenId) {
+        function nav(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            window.scrollTo(0,0);
-            
-            if(screenId === 'screen-home') {
-                const displayName = STATE.name || 'Star';
-                document.getElementById('welcome-text').innerText = `Hello, ${displayName}.`;
-            }
+            document.getElementById(id).classList.add('active');
+            if(id === 'screen-home') document.getElementById('welcome-text').innerText = `Hello, ${STATE.name||'Star'}.`;
         }
 
-        function setTone(tone) {
-            STATE.tone = tone;
-            // Visual feedback handled by CSS hover/selection state in full app
-        }
-
-        // 3. GENERATION LOGIC
         function startGeneration() {
-            if(STATE.tone !== 'romantic') {
-                alert("Please select the 'Romantic' category for this AI Agent demo!");
-                return;
-            }
             nav('screen-results');
-            document.getElementById('results-grid').innerHTML = ''; // Clear old
-            fetchImages(); // Fetch new
-        }
-
-        function changeStyle(newStyle, btn) {
-            STATE.style = newStyle;
-            
-            // UI Toggle Logic
-            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Reset and Fetch
             document.getElementById('results-grid').innerHTML = '';
             fetchImages();
         }
 
-        // 4. API CALL (The Connector)
+        function changeStyle(style, btn) {
+            STATE.style = style;
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('results-grid').innerHTML = '';
+            fetchImages();
+        }
+
         async function fetchImages(isLoadMore = false) {
             const loader = document.getElementById('loading-indicator');
             const moreBtn = document.getElementById('more-btn');
-            const msgEl = document.getElementById('agent-msg');
             
             loader.style.display = 'block';
             moreBtn.style.display = 'none';
 
             try {
-                // Construct URL with parameters
-                const url = `${API_URL}?gender=${STATE.gender}&tone=${STATE.tone}&style=${STATE.style}`;
-                
-                const response = await fetch(url);
-                
-                if (!response.ok) throw new Error("Network response was not ok");
-                
-                const result = await response.json();
+                // Call the Mega-Backend
+                const res = await fetch(`${API_URL}?gender=${STATE.gender}&tone=${STATE.tone}&style=${STATE.style}`);
+                const data = await res.json();
 
-                if(result.status === 'success') {
-                    // Update Agent Message
-                    msgEl.innerText = `"${result.message}"`;
-                    
-                    // Render Images
+                if(data.status === 'success') {
+                    document.getElementById('agent-msg').innerText = data.message;
                     const grid = document.getElementById('results-grid');
                     
-                    if(result.data.length === 0) {
-                        msgEl.innerText = "The agent is resting. Try clicking 'Real Life' or 'Anime' again.";
-                    }
-
-                    result.data.forEach((imgUrl, index) => {
+                    data.data.forEach((img, i) => {
                         const div = document.createElement('div');
                         div.className = 'pose-item';
-                        div.innerHTML = `
-                            <img src="${imgUrl}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                            <div class="pose-overlay">
-                                <div>${STATE.style === 'real' ? 'Pose' : 'Art'} #${index+1}</div>
-                                <div style="font-size: 0.8rem; opacity: 0.8;">Tap to expand</div>
-                            </div>
-                        `;
-                        div.onclick = () => window.open(imgUrl, '_blank');
+                        div.innerHTML = `<img src="${img}" loading="lazy"><div class="pose-overlay">Look #${i+1}</div>`;
+                        div.onclick = () => window.open(img, '_blank');
                         grid.appendChild(div);
                     });
-
                     moreBtn.style.display = 'block';
                 }
-            } catch (err) {
-                console.error(err);
-                msgEl.innerHTML = `<span style="color:red; font-weight:bold;">⚠️ Connection Error. If on Render, check logs. If Local, run 'python app.py'.</span>`;
+            } catch (e) {
+                console.error(e);
+                document.getElementById('agent-msg').innerText = "Connection Error. Check Render logs.";
             } finally {
                 loader.style.display = 'none';
             }
