@@ -1,24 +1,27 @@
 import os
+import random
+import time
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from duckduckgo_search import DDGS
-import random
-import time
 
-app = Flask(__name__)
+# Initialize Flask
+# static_folder='.' allows serving files from the current directory
+app = Flask(__name__, static_folder='.')
 CORS(app)
 
-# --- SERVE THE FRONTEND ---
+# --- ROUTE: SERVE FRONTEND ---
 @app.route('/')
 def home():
-    # This serves your index.html file directly
+    # Looks for index.html in the same folder
     return send_from_directory('.', 'index.html')
 
-# --- THE AGENT BRAIN ---
+# --- THE ROMANTIC AI BRAIN ---
 class RomanticSoulAI:
     def __init__(self):
         self.ddgs = DDGS()
         
+        # Intelligent Search Scenarios
         self.scenarios = {
             'real': [
                 "holding hands walking into sunset",
@@ -27,7 +30,9 @@ class RomanticSoulAI:
                 "man giving flower to woman surprise",
                 "couple back to back reading books",
                 "couple walking in rain with umbrella",
-                "picnic date aesthetic modest"
+                "picnic date aesthetic modest",
+                "proposing on knee romantic scenery",
+                "dancing in kitchen couple aesthetic"
             ],
             'animated': [
                 "anime couple hugging sunset digital art",
@@ -35,10 +40,13 @@ class RomanticSoulAI:
                 "manhwa romance couple aesthetic wallpaper",
                 "ghibli style romantic couple illustration",
                 "cute chibi couple love drawing",
-                "disney style prince and princess modern art"
+                "disney style prince and princess modern art",
+                "fantasy romance couple glowing art",
+                "cyberpunk couple romance neon art"
             ]
         }
 
+        # Safety & Quality Guardrails
         self.safety_prompt = (
             "modest fully clothed no swimwear no bikini no cleavage "
             "family friendly aesthetic 4k high resolution portrait photography "
@@ -46,11 +54,15 @@ class RomanticSoulAI:
         )
 
     def generate_query(self, category, style):
+        # 1. Pick a random scenario
         scenario = random.choice(self.scenarios[style])
+        
+        # 2. Adjust for Gender Mode
         base_term = "cute romantic couple"
         if category == 'masculine':
             base_term = "cool stylish couple city vibes"
             
+        # 3. Construct Final Search String
         if style == 'animated':
             return f"{base_term} {scenario} {self.safety_prompt} digital art wallpaper"
         else:
@@ -61,35 +73,42 @@ class RomanticSoulAI:
         print(f"❤️ Searching: {query}")
         
         try:
-            # Sleep to prevent rate limiting
+            # Sleep prevents getting blocked by search engine
             time.sleep(0.5)
             
-            # Perform Deep Search
+            # Perform Search
             results = self.ddgs.images(
                 query, 
                 region="wt-wt", 
                 safesearch="on", 
                 max_results=count + 15 
             )
+            
+            # Return pure URLs
             return [r['image'] for r in results][:count]
             
         except Exception as e:
             print(f"💔 Error: {e}")
             return []
 
+# Initialize Agent
 agent = RomanticSoulAI()
 
+# --- ROUTE: API ENDPOINT ---
 @app.route('/api/generate', methods=['GET'])
 def generate():
+    # Get parameters from frontend
     gender_mode = request.args.get('gender', 'feminine') 
     tone = request.args.get('tone', 'romantic')
     style = request.args.get('style', 'real') 
     
+    # Generate Message
     if style == 'real':
         msg = "I've curated these genuine moments of connection. Notice the gentle lighting."
     else:
         msg = "I found these dreamy illustrations from a world where love is magic."
 
+    # Fetch Images
     image_list = agent.get_images(gender_mode, style, count=20)
     
     return jsonify({
@@ -98,7 +117,9 @@ def generate():
         "data": image_list
     })
 
+# --- START SERVER ---
 if __name__ == '__main__':
-    # RENDER CONFIGURATION
+    # Use the PORT environment variable for Render, default to 5000 for local
     port = int(os.environ.get("PORT", 5000))
+    # host='0.0.0.0' is required for cloud deployment
     app.run(host='0.0.0.0', port=port)
