@@ -5,14 +5,8 @@ import logging
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-# --- ROBUST IMPORT FIX ---
-# This block fixes the "ImportError" by checking which version is installed
-try:
-    from duckduckgo_search import DDGS, DuckDuckGoSearchException
-except ImportError:
-    # If the specific exception doesn't exist, fall back to generic Exception
-    from duckduckgo_search import DDGS
-    DuckDuckGoSearchException = Exception
+# Import the library (modern versions use this import)
+from duckduckgo_search import DDGS
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -72,24 +66,25 @@ class RomanticSoulAI:
         logger.info(f"❤️ Starting search for: {query}")
         
         max_retries = 3
+        
         for attempt in range(max_retries):
             try:
-                # Use context manager
+                # Initialize the search engine
                 with DDGS() as ddgs:
+                    # Random delay to act human
                     time.sleep(random.uniform(0.5, 1.5))
                     
-                    # Backend switching logic
-                    backend = 'api' if attempt == 0 else 'html'
-                    logger.info(f"Attempt {attempt+1}/{max_retries} using backend: {backend}")
+                    logger.info(f"Attempt {attempt+1}/{max_retries}...")
                     
+                    # --- FIX IS HERE: REMOVED 'backend' PARAMETER ---
                     results = ddgs.images(
                         query, 
                         region="wt-wt", 
                         safesearch="on", 
-                        max_results=count + 30, 
-                        backend=backend
+                        max_results=count + 10
                     )
                     
+                    # Filter and extract URLs
                     image_urls = [r['image'] for r in results if r.get('image')]
                     
                     if image_urls:
@@ -99,11 +94,10 @@ class RomanticSoulAI:
                     else:
                         logger.warning(f"⚠️ Attempt {attempt+1} returned no images.")
                         
-            except DuckDuckGoSearchException as e:
-                logger.error(f"Search error on attempt {attempt+1}: {e}")
             except Exception as e:
-                logger.error(f"Unexpected error on attempt {attempt+1}: {e}")
+                logger.error(f"Error on attempt {attempt+1}: {e}")
             
+            # Exponential backoff sleep (2s, 4s, 8s)
             sleep_time = (attempt + 1) * 2
             logger.info(f"Sleeping for {sleep_time}s before retry...")
             time.sleep(sleep_time)
