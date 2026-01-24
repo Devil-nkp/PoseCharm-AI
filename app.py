@@ -6,13 +6,14 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from duckduckgo_search import DDGS
 
-# Set up logging
+# Set up logging to track the AI's status
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='.')
 CORS(app)
 
+# --- SERVE THE APP ---
 @app.route('/')
 def home():
     return send_from_directory('.', 'index.html')
@@ -24,14 +25,16 @@ class RomanticSoulAI:
     def get_live_images(self, style):
         all_images = []
         
-        # 3-STAGE CASCADE STRATEGY
-        # If Stage 1 fails, it falls through to Stage 2, then Stage 3.
+        # --- 3-STAGE CASCADE STRATEGY ---
+        # 1. Complex Aesthetic Search (Best Quality)
+        # 2. Broad Topic Search (Good Quality)
+        # 3. Simple Keyword Search (Guaranteed Results)
         
         if style == 'real':
             queries = [
-                "romantic couple poses modest aesthetic 4k portrait photography", # Stage 1: Specific
-                "happy couple in love photography poses",                       # Stage 2: Broad
-                "cute couple poses"                                             # Stage 3: Simple
+                "romantic couple poses modest aesthetic 4k portrait photography beautiful lighting", # Stage 1
+                "happy couple in love photography poses",                                          # Stage 2
+                "cute couple poses"                                                                # Stage 3
             ]
         else:
             queries = [
@@ -40,17 +43,19 @@ class RomanticSoulAI:
                 "cute anime couple"
             ]
 
-        # Try each query until we find images
+        # Try each query in order until we find enough images
         for query in queries:
+            # If we already have 20+ images from a previous stage, stop hunting
             if len(all_images) >= 20: 
-                break # We have enough
+                break 
             
             try:
                 logger.info(f"🔍 Hunting Live: '{query}'")
                 with DDGS() as ddgs:
-                    # Random pause to look human
+                    # Random pause to look like a human user
                     time.sleep(random.uniform(0.5, 1.0))
                     
+                    # Perform Search
                     results = ddgs.images(
                         query, 
                         region="wt-wt", 
@@ -64,8 +69,9 @@ class RomanticSoulAI:
                     if found:
                         logger.info(f"✅ Found {len(found)} images in this stage.")
                         all_images.extend(found)
-                        # If we found good images, stop hunting to save time
-                        if len(all_images) > 10:
+                        
+                        # If we found plenty of images, we can stop the cascade early
+                        if len(all_images) > 15:
                             break
                     else:
                         logger.warning(f"⚠️ No results for '{query}'. Trying next stage...")
@@ -74,15 +80,15 @@ class RomanticSoulAI:
                 logger.error(f"❌ Error hunting '{query}': {e}")
                 continue
 
-        # Final Shuffle for variety
+        # Final Polish: Shuffle and Remove Duplicates
         random.shuffle(all_images)
-        
-        # Return unique images only (remove duplicates) and cap at 20
         unique_images = list(dict.fromkeys(all_images))
+        
         return unique_images[:20]
 
 agent = RomanticSoulAI()
 
+# --- API ENDPOINT ---
 @app.route('/api/generate', methods=['GET'])
 def generate():
     style = request.args.get('style', 'real') 
