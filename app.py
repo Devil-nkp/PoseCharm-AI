@@ -1,111 +1,105 @@
-import os
+from flask import Flask, render_template, jsonify, request
 import random
 import time
-import logging
-from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
-from duckduckgo_search import DDGS
 
-# Set up logging to track the AI's status
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+app = Flask(__name__)
 
-app = Flask(__name__, static_folder='.')
-CORS(app)
+# --- Mock Data & Constants ---
 
-# --- SERVE THE APP ---
+POSES_DB = {
+    "Joyful": [
+        {"title": "The Sunshine Spin", "desc": "Spin slowly with arms wide open, head tilted back slightly laughing.", "tips": "Let your dress flow!", "tags": ["Solo", "Sun"]},
+        {"title": "Candid Laughter", "desc": "Hand covering mouth gently while laughing at a friend's joke.", "tips": "Natural smiles are best.", "tags": ["Friends", "Close-up"]},
+        {"title": "Jump for Joy", "desc": "Mid-air jump with knees tucked, hands reaching for the sky.", "tips": "Use a fast shutter speed.", "tags": ["Energy", "Fun"]}
+    ],
+    "Serene": [
+        {"title": "Book & Tea", "desc": "Sitting cross-legged, holding a favorite book and looking out a window.", "tips": "Soft lighting is key.", "tags": ["Relaxation", "Cozy"]},
+        {"title": "Nature Walk", "desc": "Walking away from camera, looking back over shoulder with a soft smile.", "tips": "Great for forest paths.", "tags": ["Nature", "Walk"]},
+        {"title": "Meditative Calm", "desc": "Eyes closed, hands resting on knees, sitting peacefully.", "tips": "Breathe deeply.", "tags": ["Wellness", "Peace"]}
+    ],
+    "Confident": [
+        {"title": "The Power Stance", "desc": "Feet shoulder-width apart, hands on hips, chin up.", "tips": "Shoulders back!", "tags": ["Empowerment", "Bold"]},
+        {"title": "Walking Strut", "desc": "Walking towards camera, looking slightly away, hair flowing.", "tips": "Walk with purpose.", "tags": ["Street Style", "Motion"]},
+        {"title": "Arms Crossed", "desc": "Casual lean against a wall, arms loosely crossed, confident gaze.", "tips": "Relax your jaw.", "tags": ["Casual", "Cool"]}
+    ]
+}
+
+MUSIC_DB = {
+    "Joyful": [
+        {"title": "Happy Vibes", "artist": "Sunny Sounds", "desc": "Upbeat pop to lift your spirits."},
+        {"title": "Morning Coffee", "artist": "Acoustic Life", "desc": "Cheerful acoustic guitar."}
+    ],
+    "Serene": [
+        {"title": "Ocean Breeze", "artist": "Calm Waves", "desc": "Soft ambient pads and piano."},
+        {"title": "Forest Rain", "artist": "Nature Melodies", "desc": "Gentle rain sounds with flute."}
+    ],
+    "Confident": [
+        {"title": "Runway Ready", "artist": "Bold Beats", "desc": "Driving bass and electric energy."},
+        {"title": "Rise Up", "artist": "Anthem Makers", "desc": "Building orchestral percussion."}
+    ]
+}
+
+DEFAULT_POSES = [
+    {"title": "Classic Smile", "desc": "Simple, genuine smile looking straight at the camera.", "tips": "Think of a happy memory.", "tags": ["Classic"]}
+]
+
+DEFAULT_MUSIC = [
+    {"title": "Daily Inspiration", "artist": "Life Tunes", "desc": "Background music for any moment."}
+]
+
+# --- Routes ---
+
 @app.route('/')
-def home():
-    return send_from_directory('.', 'index.html')
+def index():
+    return render_template('index.html')
 
-class RomanticSoulAI:
-    def __init__(self):
-        self.master_title = "romantic couple poses"
-
-    def get_live_images(self, style):
-        all_images = []
-        
-        # --- 3-STAGE CASCADE STRATEGY ---
-        # 1. Complex Aesthetic Search (Best Quality)
-        # 2. Broad Topic Search (Good Quality)
-        # 3. Simple Keyword Search (Guaranteed Results)
-        
-        if style == 'real':
-            queries = [
-                "romantic couple poses modest aesthetic 4k portrait photography beautiful lighting", # Stage 1
-                "happy couple in love photography poses",                                          # Stage 2
-                "cute couple poses"                                                                # Stage 3
-            ]
-        else:
-            queries = [
-                "anime romantic couple illustration 4k wallpaper magical",
-                "anime couple in love art",
-                "cute anime couple"
-            ]
-
-        # Try each query in order until we find enough images
-        for query in queries:
-            # If we already have 20+ images from a previous stage, stop hunting
-            if len(all_images) >= 20: 
-                break 
-            
-            try:
-                logger.info(f"🔍 Hunting Live: '{query}'")
-                with DDGS() as ddgs:
-                    # Random pause to look like a human user
-                    time.sleep(random.uniform(0.5, 1.0))
-                    
-                    # Perform Search
-                    results = ddgs.images(
-                        query, 
-                        region="wt-wt", 
-                        safesearch="on", 
-                        max_results=30
-                    )
-                    
-                    # Extract valid links
-                    found = [r['image'] for r in results if r.get('image')]
-                    
-                    if found:
-                        logger.info(f"✅ Found {len(found)} images in this stage.")
-                        all_images.extend(found)
-                        
-                        # If we found plenty of images, we can stop the cascade early
-                        if len(all_images) > 15:
-                            break
-                    else:
-                        logger.warning(f"⚠️ No results for '{query}'. Trying next stage...")
-
-            except Exception as e:
-                logger.error(f"❌ Error hunting '{query}': {e}")
-                continue
-
-        # Final Polish: Shuffle and Remove Duplicates
-        random.shuffle(all_images)
-        unique_images = list(dict.fromkeys(all_images))
-        
-        return unique_images[:20]
-
-agent = RomanticSoulAI()
-
-# --- API ENDPOINT ---
-@app.route('/api/generate', methods=['GET'])
-def generate():
-    style = request.args.get('style', 'real') 
+@app.route('/api/generate', methods=['POST'])
+def generate_poses():
+    data = request.json
+    tone = data.get('tone', 'Joyful')
+    scenario = data.get('scenario', 'General')
     
-    if style == 'real':
-        msg = "I've hunted down these genuine moments for you."
+    # Simulate AI processing latency
+    time.sleep(1.5) 
+    
+    # Select poses based on Tone (mock logic)
+    # In a real app, this would query an AI model or a vector DB
+    results = POSES_DB.get(tone, [])
+    if not results:
+        # Fallback if tone not found, mix random ones
+        all_poses = [p for sublist in POSES_DB.values() for p in sublist]
+        results = random.sample(all_poses, min(3, len(all_poses)))
     else:
-        msg = "I've found these dreamy illustrations live from the web."
+        # Add some variation
+        results = random.sample(results, min(len(results), 3))
 
-    image_list = agent.get_live_images(style)
-    
+    # Add AI-generated style metadata
+    for pose in results:
+        pose['id'] = str(random.randint(1000, 9999))
+        pose['image_url'] = f"https://picsum.photos/seed/{pose['id']}/400/600" # Placeholder for AI image
+        pose['affirmation'] = "You look radiant!"
+
     return jsonify({
-        "status": "success",
-        "message": msg,
-        "data": image_list
+        "success": True,
+        "poses": results,
+        "message": f"Generated {len(results)} poses for a {tone} vibe in {scenario}."
+    })
+
+@app.route('/api/music', methods=['POST'])
+def recommend_music():
+    data = request.json
+    tone = data.get('tone', 'Joyful')
+    tracks = MUSIC_DB.get(tone, DEFAULT_MUSIC)
+    return jsonify({"tracks": tracks})
+
+@app.route('/api/analyze_photo', methods=['POST'])
+def analyze_photo():
+    # Mock analysis
+    time.sleep(2)
+    return jsonify({
+        "detected_mood": random.choice(["Joyful", "Serene", "Confident", "Playful"]),
+        "suggestion": "Your smile is contagious! We recommend 'Joyful' poses."
     })
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True, port=5000)
