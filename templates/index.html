@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoseCharm AI - Capture Your Joy</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+
+    <!-- Onboarding Section -->
+    <section id="onboarding" class="screen active">
+        <div class="splash-content">
+            <h1 class="logo fade-in">PoseCharm <i class="fa-solid fa-wand-magic-sparkles"></i></h1>
+            <p class="tagline fade-in-delay-1">Capture life's happiest moments.</p>
+            <div class="heart-float"><i class="fa-solid fa-heart"></i></div>
+            <div class="star-float"><i class="fa-solid fa-star"></i></div>
+
+            <div class="card glass">
+                <p>Welcome! Let's find your perfect spark.</p>
+                <input type="text" id="username" placeholder="What's your name?" class="input-rounded">
+                <button class="btn-primary" onclick="startApp()">Start My Journey</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main App Interface (Hidden initially) -->
+    <div id="app-container" class="hidden">
+
+        <!-- Tab Content Areas -->
+        <main id="main-content">
+
+            <!-- Home / Mood Selection -->
+            <div id="home-view" class="view active-view">
+                <header class="top-nav">
+                    <h2>Hello, <span id="user-display-name">Beautiful</span>! ✨</h2>
+                    <p class="subtitle">How do you want to feel today?</p>
+                </header>
+
+                <div class="mood-grid">
+                    <div class="mood-card" onclick="selectMood('Joyful')">
+                        <i class="fa-regular fa-face-laugh-beam"></i>
+                        <span>Joyful</span>
+                    </div>
+                    <div class="mood-card" onclick="selectMood('Serene')">
+                        <i class="fa-solid fa-spa"></i>
+                        <span>Serene</span>
+                    </div>
+                    <div class="mood-card" onclick="selectMood('Confident')">
+                        <i class="fa-solid fa-crown"></i>
+                        <span>Confident</span>
+                    </div>
+                    <div class="mood-card" onclick="selectMood('Playful')">
+                        <i class="fa-solid fa-rocket"></i>
+                        <span>Playful</span>
+                    </div>
+                    <div class="mood-card" onclick="selectMood('Dreamy')">
+                        <i class="fa-solid fa-cloud-moon"></i>
+                        <span>Dreamy</span>
+                    </div>
+                    <div class="mood-card" onclick="selectMood('Love')">
+                        <i class="fa-solid fa-heart"></i>
+                        <span>Love</span>
+                    </div>
+                </div>
+
+                <div class="upload-section glass">
+                    <h3><i class="fa-solid fa-camera"></i> Personalized Match?</h3>
+                    <p>Upload a photo for safe mood analysis.</p>
+                    <input type="file" id="photo-upload" accept="image/*" hidden onchange="analyzePhoto(this)">
+                    <label for="photo-upload" class="btn-secondary">Choose Photo</label>
+                    <div id="analysis-result" class="hidden"></div>
+                </div>
+            </div>
+
+            <!-- Generate / Results View -->
+            <div id="results-view" class="view hidden">
+                <header class="top-nav">
+                    <button class="btn-icon" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2>Your Poses</h2>
+                </header>
+
+                <!-- Loader -->
+                <div id="loader" class="hidden">
+                    <div class="spinner-heart"><i class="fa-solid fa-heart"></i></div>
+                    <p>Conjuring magic...</p>
+                </div>
+
+                <!-- Carousel -->
+                <div id="pose-carousel" class="hidden">
+                    <!-- Dynamic Content Here -->
+                </div>
+
+                <!-- Music Suggestions -->
+                <div id="music-suggestions" class="hidden">
+                    <h3>Perfect BGM <i class="fa-solid fa-music"></i></h3>
+                    <div class="music-list" id="music-list"></div>
+                </div>
+            </div>
+
+            <!-- Favorites View -->
+            <div id="favorites-view" class="view hidden">
+                <header class="top-nav">
+                    <h2>Your Collection <i class="fa-solid fa-bookmark"></i></h2>
+                </header>
+                <div class="favorites-grid" id="favorites-grid">
+                    <p class="empty-state">No favorites yet! Tap the heart on poses you love.</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-bar">
+            <button class="nav-item active" onclick="switchTab('home-view')" id="nav-home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('results-view')" id="nav-create">
+                <i class="fa-solid fa-wand-magic"></i>
+                <span>Create</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('favorites-view')" id="nav-faves">
+                <i class="fa-solid fa-heart"></i>
+                <span>Faves</span>
+            </button>
+            <button class="nav-item">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>
